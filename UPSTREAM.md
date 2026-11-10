@@ -40,4 +40,5 @@ LibreLane version, PDK and PDK version; `commit_id.json`).
 3. **tt-gds-action:** pin the newest commit that contains every current shuttle tag (usually `main`): for each
    tag, `gh api repos/TinyTapeout/tt-gds-action/compare/<tag>...<commit> --jq .status` gives `ahead` or
    `identical`. Use the full SHA in all three workflows.
-4. Update the table, then run the flow for each PDK (set `project.pdk`) and check that it passes.
+4. Update the table, then test on the demo project for each PDK, as the `tt-makerchip-template-dev` skill
+   describes. (This repo's own `gds` and `docs` runs fail by design: its project info is blank.)

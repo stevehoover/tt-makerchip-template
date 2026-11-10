@@ -24,9 +24,9 @@ The repo is a Git fork of `TinyTapeout/ttsky-verilog-template` (remote `upstream
   update.
 - Docs (`README.md`, `BROWSER.md`), `.vscode/extensions.json` recommending the Makerchip extension, and
   `test/test.py` checking the template's all-zero outputs.
-- **Temporary:** `PLACEHOLDER` values in `info.yaml` and `docs/info.md`, so the template's own CI runs the whole
-  flow. TT's templates leave these blank on purpose (each project must supply them), and this template will too
-  once they're removed; its own CI will then fail like TT's, so test on a project instead (below).
+- Like TT's, the template leaves the project's identity and docs blank in `info.yaml` and `docs/info.md`, since
+  each project must supply them. So its own `gds` and `docs` runs fail TT's checks by design; test on the demo
+  project instead (below).
 
 ## Design choices and alternatives
 
@@ -55,8 +55,10 @@ The repo is a Git fork of `TinyTapeout/ttsky-verilog-template` (remote `upstream
 
 ## Testing a change
 
-Push to a test project made from the template, with its own project info filled in (e.g.
-stevehoover/tt-makerchip-extension-demo1, after merging the template's latest changes into it), with `project.pdk` set to each PDK in turn, and check that `gds` (with `precheck`,
-`gl_test`, `viewer`), `test` and `docs` pass. Each build's `tt_submission/pdk.json` records the PDK and tool
+Test on [stevehoover/tt-makerchip-demo](https://github.com/stevehoover/tt-makerchip-demo), an 8-bit counter
+with its project info filled in. It is a clone of this repo, not made with "Use this template", so it shares this
+history: in its clone (remote `template` for this repo), `git pull template main` brings in a change. Push it
+with `project.pdk` set to each PDK in turn, waiting for each `gds` run to finish, and check that `gds` (with
+`precheck`, `gl_test`, `viewer`), `test` and `docs` pass. Each build's `tt_submission/pdk.json` records the PDK and tool
 versions it used. Pushes a few minutes apart can collide in their Pages deploys (a `viewer` "in progress"
 failure); rerun it.
