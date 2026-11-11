@@ -30,7 +30,8 @@ The repo is a Git fork of `TinyTapeout/ttsky-verilog-template` (remote `upstream
 
 ## Design choices and alternatives
 
-- **Committed `.sv` vs. building it in CI.** The archived
+- **Committed `.sv` vs. building it in CI.** TT's flow has no front-end hook, so generated Verilog must be one
+  or the other. The archived
   [stevehoover/tt10-makerchip-template](https://github.com/stevehoover/tt10-makerchip-template) (and its tt07/tt08
   predecessors) instead built the `.sv` in CI: a "Build Verilog" step (`cd test && make verilog`, installing
   `sandpiper-saas`) before `tt-gds-action` in each workflow, with the `.sv` ignored by Git. That keeps the
@@ -40,6 +41,7 @@ The repo is a Git fork of `TinyTapeout/ttsky-verilog-template` (remote `upstream
 - **One template vs. one per PDK.** TT keeps one per PDK. One template was chosen (and proven on sky130A,
   gf180mcuD and ihp-sg13cmos5l) so users retarget with one line and the Makerchip changes live once; the cost is
   porting TT's GF and IHP template changes by hand, per `UPSTREAM.md`.
+- **Not a TT template.** TT's app checks only the PDK and a passing build, not which template a project came from.
 
 ## What other components rely on
 
