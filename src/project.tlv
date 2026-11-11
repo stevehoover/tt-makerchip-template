@@ -32,14 +32,20 @@
 \TLV my_design()
 
    // ============================================
-   // If you are using TL-Verilog for your design,
-   // your TL-Verilog logic goes here.
-   // Optionally, provide \viz_js here (for TL-Verilog or Verilog logic).
-   // Tiny Tapeout inputs can be referenced as, e.g. *ui_in.
-   // (Connect Tiny Tapeout outputs at the end of this template.)
+   // If you are using TL-Verilog for your design, your TL-Verilog logic goes here.
+   // Optionally, provide \viz_js here (for TL-Verilog or Verilog logic), which
+   // overlays the demo board's FPGA chip.
+   // Inputs: ui_in[7:0], uio_in[7:0] (unless uio_oe[7:0])
    // ============================================
 
-   // ...
+   /* ...
+
+   // Connect Tiny Tapeout outputs
+   // Uncomment outputs here, and comment/delete them at the end of this file.
+   *uo_out = 8'b0;
+   *uio_out = 8'b0;
+   *uio_oe = 8'b0;
+   */
 
 
 // Set up the Tiny Tapeout lab environment.
@@ -65,11 +71,11 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
    // Tiny tapeout I/O signals.
    logic [7:0] ui_in, uio_in, uo_out, uio_out, uio_oe;
    logic [31:0] r;
-   always @(posedge clk) r = m5_if_defined_as(MAKERCHIP, 1, ['$urandom()'], ['0']);
+   always @(posedge clk) r <= m5_if_defined_as(MAKERCHIP, 1, ['$urandom()'], ['0']);
    assign ui_in = r[7:0];
    assign uio_in = r[15:8];
-   logic ena = 1'b0;
-   logic rst_n = ! reset;
+   wire ena = 1'b1;  // High while the design is selected.
+   wire rst_n = ! reset;
 
    /*
    // Or, to provide specific inputs at specific times...
@@ -124,17 +130,14 @@ module m5_user_module_name (
 
    // =========================================
    // If you are using (System)Verilog for your design,
-   // your Verilog logic goes here.
+   // your Verilog logic goes here. Module interface above.
    // =========================================
 
    // ...
 
-
-   // Connect Tiny Tapeout outputs.
-   // Note that my_design will be under /fpga_pins/fpga if m5_in_fpga.
-   // Example *uo_out = /fpga_pins/fpga|my_pipe>>3$uo_out;
-   assign *uo_out = 8'b0;  // Avoid unused inputs.
-   assign *uio_out = 8'b0;
-   assign *uio_oe = 8'b0;
+   // Connect Tiny Tapeout outputs
+   assign uo_out = 8'b0;
+   assign uio_out = 8'b0;
+   assign uio_oe = 8'b0;
 
 endmodule

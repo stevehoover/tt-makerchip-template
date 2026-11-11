@@ -18,7 +18,8 @@ To learn more and get started, visit https://tinytapeout.com.
 ## Getting started
 
 These instructions assume you have:
-- a GitHub account
+- a GitHub account, and Git
+- (for agent-driven setup) the [GitHub CLI](https://cli.github.com/) (`gh`); your agent can install it
 - (preferred) VS Code with the [Makerchip extension](https://marketplace.visualstudio.com/items?itemName=RedwoodEDA.makerchip)
 - (preferred) an AI agent in VS Code (e.g. Copilot or Claude)
 
