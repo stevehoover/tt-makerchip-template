@@ -3,7 +3,7 @@
 //_\SV
    // Include Tiny Tapeout Lab.
    // Included URL: "https://raw.githubusercontent.com/os-fpga/Virtual-FPGA-Lab/62d6e18bc3d0ca8af451ccaff6d63974a69e645b/tlv_lib/tiny_tapeout_lib.tlv"// Included URL: "https://raw.githubusercontent.com/os-fpga/Virtual-FPGA-Lab/b31497efd986ebf6cab7da96d34b2b923a475950/tlv_lib/fpga_includes.tlv"
-//_\source project.tlv 55
+//_\source project.tlv 61
 //_\SV
 
 
@@ -16,11 +16,11 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
    // Tiny tapeout I/O signals.
    logic [7:0] ui_in, uio_in, uo_out, uio_out, uio_oe;
    logic [31:0] r;
-   always @(posedge clk) r = 0;
+   always @(posedge clk) r <= 0;
    assign ui_in = r[7:0];
    assign uio_in = r[15:8];
-   logic ena = 1'b0;
-   logic rst_n = ! reset;
+   wire ena = 1'b1;  // High while the design is selected.
+   wire rst_n = ! reset;
 
    /*
    // Or, to provide specific inputs at specific times...
@@ -82,33 +82,36 @@ module tt_um_example (
 
 // ---------- Generated Code Ends ----------
 //_\TLV
-   //_\source project.tlv 32   // Instantiated from project.tlv, 121 as: m5+my_design.
+   //_\source project.tlv 32   // Instantiated from project.tlv, 127 as: m5+my_design.
    
       // ============================================
-      // If you are using TL-Verilog for your design,
-      // your TL-Verilog logic goes here.
-      // Optionally, provide \viz_js here (for TL-Verilog or Verilog logic).
-      // Tiny Tapeout inputs can be referenced as, e.g. *ui_in.
-      // (Connect Tiny Tapeout outputs at the end of this template.)
+      // If you are using TL-Verilog for your design, your TL-Verilog logic goes here.
+      // Optionally, provide \viz_js here (for TL-Verilog or Verilog logic), which
+      // overlays the demo board's FPGA chip.
+      // Inputs: *ui_in[7:0], *uio_in[7:0] (the bits where uio_oe[7:0] is 0)
       // ============================================
    
-      // ...
+      /* ...
+   
+      // Connect Tiny Tapeout outputs
+      // Uncomment outputs here, and comment/delete them at the end of this file.
+      *uo_out = 8'b0;
+      *uio_out = 8'b0;
+      *uio_oe = 8'b0;
+      */
    //_\end_source
 
 /*SV_plus*/
 
    // =========================================
    // If you are using (System)Verilog for your design,
-   // your Verilog logic goes here.
+   // your Verilog logic goes here. Module interface above.
    // =========================================
 
    // ...
 
-
-   // Connect Tiny Tapeout outputs.
-   // Note that my_design will be under /fpga_pins/fpga if 0.
-   // Example *uo_out = /fpga_pins/fpga|my_pipe>>3$uo_out;
-   assign uo_out = 8'b0;  // Avoid unused inputs.
+   // Connect Tiny Tapeout outputs
+   assign uo_out = 8'b0;
    assign uio_out = 8'b0;
    assign uio_oe = 8'b0;
 

@@ -35,7 +35,7 @@
    // If you are using TL-Verilog for your design, your TL-Verilog logic goes here.
    // Optionally, provide \viz_js here (for TL-Verilog or Verilog logic), which
    // overlays the demo board's FPGA chip.
-   // Inputs: ui_in[7:0], uio_in[7:0] (unless uio_oe[7:0])
+   // Inputs: *ui_in[7:0], *uio_in[7:0] (the bits where uio_oe[7:0] is 0)
    // ============================================
 
    /* ...

@@ -46,9 +46,9 @@ The repo is a Git fork of `TinyTapeout/ttsky-verilog-template` (remote `upstream
 ## What other components rely on
 
 - The **Makerchip extension's "Run TT Flow" button** shows on a `.tlv` in `src/` of a project with `info.yaml`
-  at its root, writes `src/<name>.sv` beside it, and compiles with SandPiper flags that duplicate the `verilog`
-  rule's in `test/Makefile` (`TT_SANDPIPER_ARGS` in the extension's `src/tinyTapeout.ts`); keep them in sync. Its
-  pre-flight check mirrors TT's required-info checks.
+  at its root, writes `src/<name>.sv` beside it, and compiles with the SandPiper flags in `test/Makefile`'s
+  one-line `SANDPIPER_ARGS = ...` (which the `verilog` rule also uses). Its pre-flight check mirrors TT's
+  required-info checks, and an optional setting runs `make` in `test/` and reads `test/results.xml`.
 - The **TT views** (stevehoover/makerchip-tt-views) read the project's GitHub Pages as TT's `viewer` job lays it
   out (`gds_render.png`, `tinytapeout.oas`, and the PDK in the redirect page), and job names (`gds`, `viewer`)
   from the Actions API.

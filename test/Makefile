@@ -65,9 +65,11 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 endif
 
 # TL-Verilog: generate src/*.sv from src/*.tlv with SandPiper-SaaS. Commit the result.
+# The Makerchip extension's "Run TT Flow" button reads SANDPIPER_ARGS from this line, so keep it a one-line `=`.
+SANDPIPER_ARGS = --inlineGen --noline --clkAlways --bestsv --iArgs
 $(SRC_DIR)/%.sv: $(SRC_DIR)/%.tlv
 	@command -v sandpiper-saas > /dev/null || (echo "Install SandPiper-SaaS: pipx install sandpiper-saas" && exit 1)
-	cd $(SRC_DIR) && sandpiper-saas -i '$(<F)' -o '$(@F)' --outdir . --sv_url_inc --inlineGen --noline --clkAlways --bestsv --iArgs
+	cd $(SRC_DIR) && sandpiper-saas -i '$(<F)' -o '$(@F)' --outdir . --sv_url_inc $(SANDPIPER_ARGS)
 
 .PHONY: verilog
 verilog: $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
