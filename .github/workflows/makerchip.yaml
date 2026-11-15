@@ -1,5 +1,6 @@
-# Publishes everything a commit's Tiny Tapeout workflows produce to this repo's GitHub Pages: TT's viewer files
-# (as its `viewer` job publishes them), every run's artifacts and job logs, and a manifest.json describing them. For
+# Publishes what a commit's Tiny Tapeout workflows produce to this repo's GitHub Pages: TT's viewer files (as its
+# `viewer` job publishes them), every run's artifacts (but not the tools' binary databases) and job logs, a
+# manifest.json describing them, and a summary.json of the results (see ../makerchip/publish.py). For
 # Makerchip's TT views (github.com/stevehoover/makerchip-tt-views, whose README describes the layout) and for anyone
 # else, without sign-in. Not part of TT's template; see UPSTREAM.md.
 name: makerchip
@@ -47,84 +48,10 @@ jobs:
           ref: ${{ env.SHA }}
           path: repo
 
+      # (See publish.py.)
       - name: Gather results
         if: steps.when.outputs.publish == 'true'
-        shell: python
-        run: |
-          import glob, hashlib, json, os, re, shutil, subprocess, zipfile
-          from datetime import datetime, timezone
-          repo, sha = os.environ['REPO'], os.environ['SHA']
-          def gh(*args):
-              return subprocess.run(['gh', *args], check=True, capture_output=True, text=True).stdout
-          def api(path):
-              return json.loads(gh('api', path))
-
-          site = 'site'
-          os.makedirs(site, exist_ok=True)
-          open(f'{site}/.nojekyll', 'w').close()  # Serve every file as is.
-
-          # The latest run of each TT workflow for this commit: its artifacts (in runs/<workflow>/<artifact>/)
-          # and, once complete, its job logs (in runs/<workflow>/logs/).
-          runs = {}
-          for run in api(f'repos/{repo}/actions/runs?head_sha={sha}&per_page=100')['workflow_runs']:
-              name = run['name']
-              if name not in ('gds', 'test', 'docs') or name in runs:
-                  continue  # Newest first.
-              out = f'{site}/runs/{name}'
-              os.makedirs(out, exist_ok=True)
-              arts = [a['name'] for a in api(f"repos/{repo}/actions/runs/{run['id']}/artifacts")['artifacts']
-                      if not a['expired'] and not a['name'].startswith('github-pages')]
-              for a in arts:
-                  gh('run', 'download', str(run['id']), '-R', repo, '-n', a, '-D', f'{out}/{a}')
-              logs = run['status'] == 'completed'
-              if logs:
-                  zip_path = f'{out}/logs.zip'
-                  with open(zip_path, 'wb') as f:
-                      f.write(subprocess.run(['gh', 'api', f"repos/{repo}/actions/runs/{run['id']}/logs"],
-                                             check=True, capture_output=True).stdout)
-                  zipfile.ZipFile(zip_path).extractall(f'{out}/logs')
-                  os.remove(zip_path)
-              runs[name] = {
-                  'id': run['id'], 'url': run['html_url'], 'status': run['status'], 'conclusion': run['conclusion'],
-                  'jobs': [{'name': j['name'], 'status': j['status'], 'conclusion': j['conclusion']}
-                           for j in api(f"repos/{repo}/actions/runs/{run['id']}/jobs")['jobs']],
-                  'artifacts': arts, 'logs': logs,
-              }
-
-          # TT's viewer files, as its viewer job publishes them: the layout, its render, and an index.html that
-          # redirects to TT's 3D viewer (and names the PDK).
-          sub = f'{site}/runs/gds/tt_submission/tt_submission'  # (The artifact holds a tt_submission folder.)
-          pdk = json.load(open(f'{sub}/pdk.json')) if os.path.exists(f'{sub}/pdk.json') else None
-          for ext in ('gds', 'oas'):
-              for f in glob.glob(f'{sub}/*.{ext}'):
-                  shutil.copy(f, f'{site}/tinytapeout.{ext}')
-          for f in glob.glob(f'{site}/runs/gds/gds_render/*.png'):
-              shutil.copy(f, f'{site}/gds_render.png')
-          if pdk:
-              open(f'{site}/index.html', 'w').write(
-                  '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Redirecting to 3D Viewer...</title>'
-                  '</head><body><script>location.href = "https://gds-viewer.tinytapeout.com/?pdk=' + pdk['PDK'] +
-                  '&model=" + encodeURIComponent(location.href + "/tinytapeout.oas");</script></body></html>\n')
-
-          # Each generated .sv stamped with its .tlv's hash ("// makerchip-tt: tlv-sha256 <hash>", by the Makerchip
-          # extension's "Run TT Flow"): whether it was generated from the committed .tlv. Unstamped: unknown (null).
-          sv = []
-          for path in sorted(glob.glob('repo/src/*.sv')):
-              text = open(path, encoding='utf-8', errors='replace').read()
-              tlv = path[:-3] + '.tlv'
-              stamp = re.search(r'// makerchip-tt: tlv-sha256 ([0-9a-f]{64})', text)
-              fresh = None
-              if stamp and os.path.exists(tlv):
-                  source = open(tlv, 'rb').read().replace(b'\r\n', b'\n')
-                  fresh = stamp.group(1) == hashlib.sha256(source).hexdigest()
-              sv.append({'sv': path[5:], 'tlv': tlv[5:], 'fresh': fresh,
-                         'vga': bool(re.search(r'// makerchip-tt: vga\b', text))})
-
-          files = sorted(os.path.relpath(os.path.join(d, f), site) for d, _, fs in os.walk(site) for f in fs)
-          manifest = {'sha': sha, 'published': datetime.now(timezone.utc).isoformat(timespec='seconds'),
-                      'pdk': pdk, 'runs': runs, 'sv': sv, 'files': files + ['manifest.json']}
-          json.dump(manifest, open(f'{site}/manifest.json', 'w'), indent=1)
-          print(json.dumps({k: v for k, v in manifest.items() if k != 'files'}, indent=1))
+        run: python3 repo/.github/makerchip/publish.py
 
       # (Unique per attempt: deploy-pages fails if the artifact name is ambiguous.)
       - name: Upload

@@ -23,9 +23,11 @@ The repo is a Git fork of `TinyTapeout/ttsky-verilog-template` (remote `upstream
   PDK-specific, the pinned `tt-gds-action` commit and what it fixes, the TT templates' synced commits, and how to
   update.
 - **`.github/workflows/makerchip.yaml`:** after TT's `gds`, `test` and `docs` runs, it republishes the project's
-  GitHub Pages with everything they produced (TT's viewer files, all artifacts and job logs, and a
-  `manifest.json`), for Makerchip's TT views. It is the only workflow TT's templates lack; the makerchip-tt-views
-  README describes what it publishes.
+  GitHub Pages with what they produced (TT's viewer files, artifacts other than the tools' binary databases, job
+  logs, a `manifest.json` and a `summary.json`), for Makerchip's TT views. `.github/makerchip/publish.py` does the
+  gathering. It is the only workflow TT's templates lack; the makerchip-tt-views README describes what it
+  publishes. To test `publish.py` without a push, run it with `REPO`, `SHA` and `GH_TOKEN` set and the commit
+  checked out in `./repo` (it writes `./site`).
 - Docs (`README.md`, `BROWSER.md`), `.vscode/extensions.json` recommending the Makerchip extension, and
   `test/test.py` checking the template's all-zero outputs.
 - Like TT's, the template leaves the project's identity and docs blank in `info.yaml` and `docs/info.md`, since
@@ -41,7 +43,7 @@ The repo is a Git fork of `TinyTapeout/ttsky-verilog-template` (remote `upstream
   `sandpiper-saas`) before `tt-gds-action` in each workflow, with the `.sv` ignored by Git. That keeps the
   `.tlv` the only source and can't go stale, but every run depends on SandPiper-SaaS and every workflow differs
   from TT's. Committing it was chosen so the workflows stay TT's; staleness is the cost. "Run TT Flow" stamps
-  the `.tlv`'s hash in the `.sv`, and `makerchip.yaml` records in `manifest.json` whether they still match (not
+  the `.tlv`'s hash in the `.sv`, and `publish.py` records whether they still match, which TT Progress shows (not
   for a `.sv` generated otherwise, nor for changes in included libraries).
 - **One template vs. one per PDK.** TT keeps one per PDK. One template was chosen (and proven on sky130A,
   gf180mcuD and ihp-sg13cmos5l) so users retarget with one line and the Makerchip changes live once; the cost is

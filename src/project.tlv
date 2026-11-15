@@ -29,15 +29,18 @@
    // If debouncing, your top module is wrapped within a debouncing module, so it has a different name.
    var(user_module_name, m5_if(m5_debounce_inputs, my_design, m5_my_design))
    var(debounce_cnt, m5_if_defined_as(MAKERCHIP, 1, 8'h03, 8'hff))
-   // No TT lab outside of Makerchip, nor for VGA (whose output the demo board can't show).
+   // No TT lab outside of Makerchip.
    if_defined_as(MAKERCHIP, 1, [''], ['m5_set(in_fpga, 0)'])
-   if(m5_vga, ['m5_set(in_fpga, 0)'])
    var(vga_scale, m5_if_defined_as(MAKERCHIP, 1, m5_vga_makerchip_scale, 1))  // (Read by the library.)
 \SV
    // Include Tiny Tapeout Lab.
-   m4_include_lib(['https://raw.githubusercontent.com/os-fpga/Virtual-FPGA-Lab/2336df0b5963b70fface5c278db713de37399aeb/tlv_lib/tiny_tapeout_lib.tlv'])
+   m4_include_lib(['https://raw.githubusercontent.com/os-fpga/Virtual-FPGA-Lab/f18361f1ebbf39c6a910cfcee7b40bc1979360fd/tlv_lib/tiny_tapeout_lib.tlv'])
 
-\TLV my_design()
+// Your design, in scope /_top (/fpga, in the TT demo board's FPGA, or /top), with the VGA and gamepad support its
+// settings ask for.
+\TLV my_design(/_top)
+   m5_if(m5_vga, ['m5+tt_vga(0)'])  // 0: the pixel latency (see tt_vga()).
+   m5_if(m5_gamepad, ['m5+tt_gamepad(/_top, m5_gamepad)'])
 
    //   #####  #            #   #      #   #  #####  ####   #####
    //     #    #            #   #      #   #  #      #   #  #
@@ -46,14 +49,15 @@
    //     #    #####          #        #   #  #####  #   #  #####
    //
    // Your TL-Verilog logic, if any, and optionally \viz_js (for TL-Verilog or Verilog logic), which overlays the
-   // demo board's FPGA chip. Inputs: *ui_in[7:0], *uio_in[7:0] (the bits where uio_oe[7:0] is 0).
+   // demo board's FPGA chip. Inputs: *ui_in[7:0], *uio_in[7:0] (the bits where uio_oe[7:0] is 0). From deeper
+   // scopes, reach this one's signals as /_top$sig.
 
 
 
    /*
    // Connect Tiny Tapeout outputs
    // Uncomment outputs here, and comment/delete them at the end of this file.
-   *uo_out = 8'b0;
+   m5_if(m5_vga, ['// (uo_out is driven by tt_vga().)'], ['*uo_out = 8'b0;'])
    *uio_out = 8'b0;
    *uio_oe = 8'b0;
    */
@@ -138,9 +142,8 @@ module m5_user_module_name (
    (* keep *) wire _unused = &{ena, clk, reset, ui_in, uio_in, 1'b1};
 
 \TLV
-   m5_if(m5_vga, ['m5+tt_vga(0)'])  // 0: the pixel latency (see tt_vga()).
-   m5_if(m5_gamepad, ['m5+tt_gamepad(m5_gamepad)'])
-   m5_if(m5_in_fpga, ['m5+tt_lab()'], ['m5+my_design()'])
+   m5_if(m5_in_fpga, ['m5+tt_lab()'], ['m5+my_design(/top)'])
+   m5_if(m5_vga, ['m5+tt_vga_viz()'])
 
 \SV_plus
 
