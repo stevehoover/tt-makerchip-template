@@ -32,6 +32,12 @@ LibreLane version, PDK and PDK version; `commit_id.json`).
 - `info.yaml`: `pdk`, and the tile-size comment.
 - `.devcontainer`: SKY130 only, as in TT's SKY template.
 
+## Makerchip's changes
+
+Besides the files above, `gds.yaml`'s `viewer` job publishes everything to Pages: before TT's viewer action, it
+gathers the other results into the directory that action publishes (`.github/makerchip/publish.py`; see the
+`tt-makerchip-template-dev` skill). Its changes are marked `# Makerchip`; keep them when merging.
+
 ## Updating
 
 1. **SKY130:** `git fetch upstream && git merge upstream/main`. Keep the files above PDK-generic when resolving
@@ -43,4 +49,4 @@ LibreLane version, PDK and PDK version; `commit_id.json`).
    tag, `gh api repos/TinyTapeout/tt-gds-action/compare/<tag>...<commit> --jq .status` gives `ahead` or
    `identical`. Use the full SHA in all three workflows.
 4. Update the table, then test on the demo project for each PDK, as the `tt-makerchip-template-dev` skill
-   describes. (This repo's own `gds` and `docs` runs fail by design: its project info is blank.)
+   describes, including that the `viewer` job publishes Makerchip's results (no warning). (This repo's own `gds` and `docs` runs fail by design: its project info is blank.)

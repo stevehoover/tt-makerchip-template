@@ -41,11 +41,57 @@ jobs:
       - name: GL test
         uses: TinyTapeout/tt-gds-action/gl_test@d4783dbe16287f6e367949a5ca93d47015283adc  # See UPSTREAM.md.
 
+  # TT's viewer job, publishing (besides TT's viewer files) everything the commit's runs produced, so a commit gets one
+  # Pages deployment: Pages may ignore a second one (actions/deploy-pages#383). Makerchip's changes are marked (see
+  # UPSTREAM.md).
   viewer:
-    needs: gds
+    needs: [gds, precheck, gl_test]  # Makerchip: was [gds]
+    if: always() && github.ref_name == github.event.repository.default_branch  # Makerchip
     runs-on: ubuntu-24.04
+    concurrency:
+      group: pages  # Makerchip: one deployment at a time; a newer pending one replaces an older.
     permissions:
+      actions: read     # Makerchip: to read the runs' artifacts and logs
+      contents: read    # Makerchip
       pages: write      # to deploy to Pages
       id-token: write   # to verify the deployment originates from an appropriate source
     steps:
+      # Makerchip: the rest of the results, in the directory TT's viewer action publishes. (Their failure mustn't keep
+      # TT's viewer from publishing the layout.)
+      - uses: actions/checkout@v6
+        continue-on-error: true
+        with:
+          path: repo
+      - run: python3 repo/.github/makerchip/publish.py
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+
       - uses: TinyTapeout/tt-gds-action/viewer@d4783dbe16287f6e367949a5ca93d47015283adc  # See UPSTREAM.md.
+        if: needs.gds.result == 'success'
+
+      # Makerchip: without a layout, TT's viewer action can't run, so publish the rest (e.g. the failure's logs).
+      - if: needs.gds.result != 'success'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: gh-pages
+          name: github-pages-${{ github.run_attempt }}
+      - if: needs.gds.result != 'success'
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
+
+      # Makerchip: warn if Pages doesn't serve this commit's results, as when Pages ignores a deployment (see above) or
+      # TT's viewer action no longer publishes all of gh-pages/.
+      - if: ${{ !cancelled() && hashFiles('gh-pages/summary.json') != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .html_url)
+          for i in $(seq 24); do
+            [ "$(curl -s "${url%/}/summary.json?t=$(date +%s)" | jq -r .sha 2>/dev/null)" = "$GITHUB_SHA" ] && exit 0
+            sleep 10
+          done
+          echo "::warning::GitHub Pages doesn't serve this commit's summary.json, so Makerchip's TT views can't show its results."

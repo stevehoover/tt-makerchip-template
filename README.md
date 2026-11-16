@@ -51,8 +51,8 @@ shows it running, and its VIZ shows the frames simulated (set `vga_makerchip_sca
 Click "Run TT Flow" (the rocket in `src/project.tlv`'s title bar). It checks your project's information,
 regenerates `src/project.sv` (the Verilog the flow builds), and commits and pushes it. The push runs the flow on
 GitHub Actions, which builds the ASIC with [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
-Its progress and layout appear in Makerchip's TT Progress and TT Layout views, and its results (why a job failed,
-test results, logs, reports, the datasheet) in TT Progress.
+Its progress and layout appear in Makerchip's TT Build and TT Layout views, and its results (why a job failed,
+test results, logs, reports, the datasheet) in TT Build.
 
 ## Resources
 
