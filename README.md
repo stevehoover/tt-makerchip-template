@@ -35,7 +35,7 @@ it, including the shuttle you're targeting), and open `src/project.tlv`, whose t
 
 ### 2. Design
 
-Design in [src/project.tlv](src/project.tlv), in Verilog/SystemVerilog/TL-Verilog. (See "logic goes here" comments in the template.) The Makerchip button in its title
+Design in [src/project.tlv](src/project.tlv), in Verilog/SystemVerilog/TL-Verilog. (See its "VERILOG/TL-V HERE" ASCI-text comments.) The Makerchip button in its title
 bar compiles and simulates it, with the Tiny Tapeout demo board in the VIZ view. Adapt the testbench to your
 design (see [test/README.md](test/README.md)), and keep `pinout` and `docs/info.md` up to date.
 
@@ -48,7 +48,7 @@ shows it running, and its VIZ shows the frames simulated (set `vga_makerchip_sca
 
 ### 3. Run the Tiny Tapeout flow
 
-Click "Run TT Flow" (the rocket in `src/project.tlv`'s title bar). It checks your project's information,
+Click "Run TT Flow" (the chip button in `src/project.tlv`'s title bar). It checks your project's information,
 regenerates `src/project.sv` (the Verilog the flow builds), and commits and pushes it. The push runs the flow on
 GitHub Actions, which builds the ASIC with [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
 Its progress and layout appear in Makerchip's TT Build and TT Layout views, and its results (why a job failed,
