@@ -65,6 +65,7 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 endif
 
 # TL-Verilog: generate src/*.sv from src/*.tlv with SandPiper-SaaS. Commit the result.
+# Debug signals (the .tlv's first line) are --debugSigsGtkwave, not --debugSigsYosys, whose (* keep *) costs area.
 # The Makerchip extension's "Run TT Flow" button reads SANDPIPER_ARGS from this line, so keep it a one-line `=`.
 SANDPIPER_ARGS = --inlineGen --noline --clkAlways --bestsv --iArgs
 $(SRC_DIR)/%.sv: $(SRC_DIR)/%.tlv

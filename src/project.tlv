@@ -1,4 +1,4 @@
-\m5_TLV_version 1d --inlineGen --debugSigsYosys --fmtFlatSignals: tl-x.org
+\m5_TLV_version 1d --inlineGen --debugSigsGtkwave --fmtFlatSignals: tl-x.org
 \m5
    /**
    This template is for developing Tiny Tapeout designs using Makerchip.
