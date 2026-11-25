@@ -48,7 +48,7 @@ shows it running, and its VIZ shows the frames simulated (set `vga_makerchip_sca
 
 ### 3. Run the Tiny Tapeout flow
 
-Click "Run TT Flow" (the chip button in `src/project.tlv`'s title bar). It checks your project's information,
+Click "Run TT Flow" (the Tiny Tapeout logo button in `src/project.tlv`'s title bar). It checks your project's information,
 regenerates `src/project.sv` (the Verilog the flow builds), and commits and pushes it. The push runs the flow on
 GitHub Actions, which builds the ASIC with [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
 Its progress and layout appear in Makerchip's TT Build and TT Layout views, and its results (why a job failed,
