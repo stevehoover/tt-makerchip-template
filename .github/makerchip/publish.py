@@ -49,8 +49,9 @@ runs = {}
 for name, run in latest_runs().items():
     out = f'{site}/runs/{name}'
     os.makedirs(out, exist_ok=True)
-    arts = [a['name'] for a in api(f"repos/{repo}/actions/runs/{run['id']}/artifacts")['artifacts']
-            if not a['expired'] and not a['name'].startswith('github-pages')]
+    # Each name once: a rerun job uploads its artifact again under the same name (gh downloads the newest).
+    arts = list(dict.fromkeys(a['name'] for a in api(f"repos/{repo}/actions/runs/{run['id']}/artifacts")['artifacts']
+                              if not a['expired'] and not a['name'].startswith('github-pages')))
     for a in arts:
         gh('run', 'download', str(run['id']), '-R', repo, '-n', a, '-D', f'{out}/{a}')
     jobs = [j for j in api(f"repos/{repo}/actions/runs/{run['id']}/jobs")['jobs'] if j['status'] == 'completed']
